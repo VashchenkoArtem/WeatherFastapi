@@ -1,15 +1,10 @@
 from fastapi import HTTPException
 import datetime
 
-from weather.clients import get_current_forecast_from_api
+from weather.clients import get_current_forecast_from_api, get_daily_forecast_from_api
 
 
 def get_current_forecast(city_name: str | None = None):
-    if not city_name:
-        raise HTTPException(
-            status_code=400,
-            detail="City name is required"
-        )
     data = get_current_forecast_from_api(city_name= city_name)
     if data["cod"] == '404':
         raise HTTPException(
@@ -30,3 +25,12 @@ def get_current_forecast(city_name: str | None = None):
         }
     }
     return response
+
+def get_daily_forecast(city_name: str | None = None):
+    data = get_daily_forecast_from_api(city_name)
+    if data["cod"] == '404':
+        raise HTTPException(
+            status_code=404,
+            detail="City does not exist"
+        )
+    return data

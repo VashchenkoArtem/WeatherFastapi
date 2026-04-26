@@ -21,7 +21,7 @@ def get_current_forecast(city_name: str | None = None):
         "date_time": {
             "date": local_time.strftime("%d.%m.%Y"),
             "day_of_week": local_time.strftime("%A"), 
-            "time": local_time.strftime("%H:%M:%S")
+            "time": local_time.strftime("%H:%M")
         }
     }
     return response

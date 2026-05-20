@@ -1,16 +1,10 @@
-from fastapi import HTTPException
 import datetime
 
-from weather.clients import get_current_forecast_from_api, get_daily_forecast_from_api
+from weather.clients.forecast_client import OpenWeatherClient
 
 
-def get_current_forecast(city_name: str | None = None):
-    data = get_current_forecast_from_api(city_name= city_name)
-    if data["cod"] == '404':
-        raise HTTPException(
-            status_code=404,
-            detail="City does not exist"
-        )
+def get_current_forecast(city_name: str | None, client: OpenWeatherClient):
+    data = client.get_current_forecast_from_api(city_name)
     timestamp = data["dt"]
     timezone_offset = data["timezone"]
 
@@ -26,11 +20,7 @@ def get_current_forecast(city_name: str | None = None):
     }
     return response
 
-def get_daily_forecast(city_name: str | None = None):
-    data = get_daily_forecast_from_api(city_name)
-    if data["cod"] == '404':
-        raise HTTPException(
-            status_code=404,
-            detail="City does not exist"
-        )
+def get_daily_forecast(city_name: str | None, client: OpenWeatherClient):
+    data = client.get_daily_forecast_from_api(city_name)
+
     return data

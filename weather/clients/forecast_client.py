@@ -1,18 +1,42 @@
 import requests
 import os
-from dotenv import load_dotenv
+from fastapi import HTTPException
 
-load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-def get_current_forecast_from_api(city_name: str):
-    response = requests.get(
-        f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric"
-    ).json()
-    return response
 
-def get_daily_forecast_from_api(city_name: str):
-    response = requests.get(
-        f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&units=metric&cnt=16"
-    ).json()
-    return response
+class OpenWeatherClient:
+    BASE_URL = "https://api.openweathermap.org/data/2.5"
+
+    def get_forecast_data(self, endpoint: str, params: dict):
+        url = f"{self.BASE_URL}/{endpoint}"
+
+        response = requests.get(url, params)
+        if response.status_code == 400:
+            raise HTTPException(400, "City name did not get")
+        
+        if response.status_code == 404:
+            raise HTTPException(404, "City not found")
+
+        if not response.ok:
+            raise HTTPException(502, "Weather service error")
+
+        return response.json()
+    
+    def get_current_forecast_from_api(self, city_name: str):
+        return self.get_forecast_data(
+            endpoint= "weather", 
+            params= {
+                "q": city_name,
+                "appid": API_KEY
+            }
+        )
+    
+    def get_daily_forecast_from_api(self, city_name: str):
+        return self.get_forecast_data(
+            endpoint= "forecast",
+            params= {
+                "q": city_name,
+                "appid": API_KEY
+            }
+        )
